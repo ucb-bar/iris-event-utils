@@ -1,6 +1,7 @@
 package genevent
 
 import chisel3._
+import chisel3.util._
 
 object GenEvent {
   var instance_ctr: Int = 0
