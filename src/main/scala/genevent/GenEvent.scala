@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 import chisel3.experimental.{IntParam, StringParam}
 
+
 // class GenEvent(eventName: String, instanceCnt: Int, dataWidth: Int) extends Module {
 //   val io = IO(new Bundle {
 //     val data = Input(UInt(dataWidth.W))
