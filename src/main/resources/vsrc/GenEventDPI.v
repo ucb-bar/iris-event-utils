@@ -12,12 +12,10 @@ module GenEventBlackBox #(
                         input [63:0] data,
                         input valid
 );
-    // always @(posedge clock) begin
-    //     if (valid) begin
-    always @(*) begin
-        gen_event_export(EVENT_NAME, id, parent, cycle, data);
+    always @(posedge clock) begin
+        if (valid) begin
+            gen_event_export(EVENT_NAME, id, parent, cycle, data);
+        end
     end
-    //     end
-    // end
 
 endmodule

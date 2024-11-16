@@ -21,13 +21,13 @@ class ClockModule extends Module {
   io.out := clock.asBool
 }
 object GenEvent {
-  var instance_ctr: Int = 0
+  var instance_ctr: Int = 1
   def apply(eventName: String, data: UInt, parent: Option[EventTag], id: Option[UInt] = None, valid: Bool = true.B): EventTag = {
     var new_id = Wire(UInt(64.W))
     val id_ctr = RegInit(0.U(64.W))
     id_ctr := id_ctr + 1.U
     // new_id := Cat(instance_ctr.asUInt(32.W), id_ctr)
-    new_id := (instance_ctr.asUInt(32.W) << 32) ^ id_ctr //Pseudo hash function
+    new_id := (instance_ctr.asUInt(64.W) << 32) ^ id_ctr //Pseudo hash function
     val GenEventDPI = Module(new GenEventBlackBox(eventName))
     val ClockModule = Module(new ClockModule())
     GenEventDPI.io.clock := ClockModule.io.out

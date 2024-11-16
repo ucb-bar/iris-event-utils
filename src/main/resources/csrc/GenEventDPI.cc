@@ -24,7 +24,8 @@ public:
         std::cout << "EventLog destructor called\n";
         std::ofstream file("GenEventLog.txt");
         if (file.is_open()) {
-            for (const auto& event : event_vector) {
+            for (const event_entry& event : event_vector) {
+                // event.writeToFile(file);
                 file
                 << event.event_name  << " "
                 << event.id << " "
@@ -46,6 +47,18 @@ private:
         int64_t parent;
         int64_t cycle;
         int64_t data;
+
+        // void writeToFile(std::ofstream& file) const {
+        //     // Write the string length followed by the string data
+        //     size_t length = event_name.size();
+        //     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
+        //     file.write(event_name.data(), length);
+        //     // Write the integer
+        //     file.write(reinterpret_cast<const char*>(&id), sizeof(id));
+        //     file.write(reinterpret_cast<const char*>(&parent), sizeof(parent));
+        //     file.write(reinterpret_cast<const char*>(&cycle), sizeof(cycle));
+        //     file.write(reinterpret_cast<const char*>(&data), sizeof(data));
+        // }
     };
 
     std::vector<event_entry> event_vector;
