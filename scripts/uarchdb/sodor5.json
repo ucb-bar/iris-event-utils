@@ -1,6 +1,6 @@
 {
     "event_names": ["IF", "DEC", "EXE", "MEM", "WB"],
-    "event_types": ["bytes", "bytes", "bytes", "bytes", "bytes"],
+    "event_types": ["bytes", "inst_bytes", "bytes", "bytes", "bytes"],
     "start_stages": ["IF"],
     "split_stages": [],
     "end_stages": ["WB"]
