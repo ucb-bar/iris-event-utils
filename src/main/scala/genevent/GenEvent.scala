@@ -16,9 +16,11 @@ import chisel3.experimental.{IntParam, StringParam}
 
 class ClockModule extends Module {
   val io = IO(new Bundle {
-    val out = Output(Bool())
+    val clk = Output(Bool())
+    val reset = Output(Bool())
   })
-  io.out := clock.asBool
+  io.clk := clock.asBool
+  io.reset := reset.asBool
 }
 object GenEvent {
   var instance_ctr: Int = 1
@@ -30,7 +32,8 @@ object GenEvent {
     new_id := (instance_ctr.asUInt(64.W) << 32) ^ id_ctr //Pseudo hash function
     val GenEventDPI = Module(new GenEventBlackBox(eventName))
     val ClockModule = Module(new ClockModule())
-    GenEventDPI.io.clock := ClockModule.io.out
+    GenEventDPI.io.clock := ClockModule.io.clk
+    GenEventDPI.io.reset := ClockModule.io.reset
     if (id.isDefined) {
       GenEventDPI.io.id := id.get.pad(64)
     } else {
@@ -82,6 +85,7 @@ class GenEventBlackBox(
 
   val io = IO(new Bundle {
     val clock = Input(Bool())
+    val reset = Input(Bool())
     val id = Input(UInt(64.W))
     val parent = Input(UInt(64.W))
     val cycle = Input(UInt(64.W))

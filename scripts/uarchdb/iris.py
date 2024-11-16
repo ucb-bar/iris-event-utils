@@ -291,12 +291,22 @@ def gemmini_decode(cmd: int):
     
 # Read log JSON
 with open(args.log_file, 'r') as f:
-    json_lines = f.readlines()
+    lines = f.readlines()
 
 inst_jsons = []
-for line in json_lines:
+for line in lines:
     try:
-        inst_jsons.append(json.loads(line))
+        line = line.split(" ")
+        if line[1] == 0:
+            continue
+        data = {}
+        data["event_name"] = line[0]
+        data["id"] = line[1]
+        data["parents"] = line[2] if line[2] != "0" else "None"
+        data["cycle"] = line[3]
+        data["data"] = line[4]
+        inst_jsons.append(data)
+        # inst_jsons.append(json.loads(line))
     except json.JSONDecodeError:
         pass
 
@@ -325,10 +335,11 @@ def generate_data_array(jsons):
         else:
             dasm_input += json["data"] + "|"
     dasm_input = dasm_input[:-1]
-    if platform == "darwin":
-        p = Popen("./spike-dasm --isa=rv64gcv",  stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True, shell=True)
-    else:
-        p = Popen("./spike-dasm.exe --isa=rv64gcv", stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True, shell=True)
+    p = Popen("$RISCV/bin/spike-dasm --isa=rv64gcv",  stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True, shell=True)
+    # if platform == "darwin":
+    #     p = Popen("./spike-dasm --isa=rv64gcv",  stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True, shell=True)
+    # else:
+    #     p = Popen("./spike-dasm.exe --isa=rv64gcv", stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True, shell=True)
     stdout_data = p.communicate(input=dasm_input)[0]
     insts = stdout_data.split("|")
     print(insts)
@@ -338,9 +349,12 @@ inst_ids = np.array([int(inst_jsons[i]["id"], 16) for i in range(len(inst_jsons)
 inst_cycle = np.array([inst_jsons[i]["cycle"].strip() for i in range(len(inst_jsons))])
 inst_event = np.array([inst_jsons[i]["event_name"] for i in range(len(inst_jsons))])
 data_field = generate_data_array(inst_jsons)
+# data_field = np.array([inst_jsons[i]["data"] for i in range(len(inst_jsons))])
 inst_parent = np.array([int(inst_jsons[i]["parents"], 16) if inst_jsons[i]["parents"] != "None" else "None" for i in range(len(inst_jsons))])
+print(len(data_field))
 data = np.column_stack((inst_ids,inst_parent, inst_cycle, inst_event, data_field))
 columns = ["inst_id", "parent_id", "cycle", "stage", "data"]
+
 df = pd.DataFrame(data=data, columns=columns)
 
 class InstructionTracer:

@@ -6,6 +6,7 @@ import "DPI-C" function void gen_event_export(input string event_name,
 module GenEventBlackBox #(
                         parameter EVENT_NAME)
                         (input clock,
+                        input  reset,
                         input [63:0] id,
                         input [63:0] parent,
                         input [63:0] cycle,
@@ -13,7 +14,7 @@ module GenEventBlackBox #(
                         input valid
 );
     always @(posedge clock) begin
-        if (valid) begin
+        if (valid & ~reset) begin
             gen_event_export(EVENT_NAME, id, parent, cycle, data);
         end
     end
