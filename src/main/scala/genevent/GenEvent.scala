@@ -4,66 +4,51 @@ import chisel3._
 import chisel3.util._
 import chisel3.experimental.{IntParam, StringParam}
 
-
-// class GenEvent(eventName: String, instanceCnt: Int, dataWidth: Int) extends Module {
-//   val io = IO(new Bundle {
-//     val data = Input(UInt(dataWidth.W))
-//     val parent = Input(UInt(64.U)) //Should be fixed for multi-parent if EventTag is changed from 64.U
-//     val id = Input(UInt(64.U))
-//     val valid = Input(Bool())
-//   })
-// }
-
-class ClockModule extends Module {
+//GenEventModule is a wrapper for GenEventBlackBox
+class GenEventModule(val eventName: String) extends Module {
   val io = IO(new Bundle {
-    val clk = Output(Bool())
-    val reset = Output(Bool())
+    val id = Input(UInt(64.W))
+    val parent = Input(UInt(64.W)) 
+    val cycle = Input(UInt(64.W))
+    val data = Input(UInt(64.W))
+    val valid = Input(UInt(64.W))
   })
-  io.clk := clock.asBool
-  io.reset := reset.asBool
+  val GenEventDPI = Module(new GenEventBlackBox(eventName))
+  GenEventDPI.io.clock := clock.asBool
+  GenEventDPI.io.reset := reset.asBool
+  GenEventDPI.io.id := io.id
+  GenEventDPI.io.parent := io.parent
+  GenEventDPI.io.cycle := io.cycle
+  GenEventDPI.io.data := io.data
+  GenEventDPI.io.valid := io.valid
 }
+//GenEvent apply instantiates a GenEventModule which instantiates GenEventBlackBox
 object GenEvent {
   var instance_ctr: Int = 1
   def apply(eventName: String, data: UInt, parent: Option[EventTag], id: Option[UInt] = None, valid: Bool = true.B): EventTag = {
-    var new_id = Wire(UInt(64.W))
-    val id_ctr = RegInit(0.U(64.W))
-    id_ctr := id_ctr + 1.U
-    // new_id := Cat(instance_ctr.asUInt(32.W), id_ctr)
-    new_id := (instance_ctr.asUInt(64.W) << 32) ^ id_ctr //Pseudo hash function
-    val GenEventDPI = Module(new GenEventBlackBox(eventName))
-    val ClockModule = Module(new ClockModule())
-    GenEventDPI.io.clock := ClockModule.io.clk
-    GenEventDPI.io.reset := ClockModule.io.reset
+    var newID = Wire(UInt(64.W))
+    val cycleCounter = RegInit(0.U(64.W))
+    cycleCounter := cycleCounter + 1.U
+    newID := Cat(instance_ctr.asUInt(16.W), cycleCounter(47, 0)) //Maximum of 2^16 GenEvent instances. Consider generating ID entirely in DPI function
+
+    val GenEventModule = Module(new GenEventModule(eventName))
+
     if (id.isDefined) {
-      GenEventDPI.io.id := id.get.pad(64)
+      GenEventModule.io.id := id.get.pad(64)
     } else {
-      GenEventDPI.io.id := new_id
+      GenEventModule.io.id := newID
     }
     if (parent.isDefined) {
-      GenEventDPI.io.parent := parent.get.id.pad(64)
+      GenEventModule.io.parent := parent.get.id.pad(64)
     } else {
-      GenEventDPI.io.parent := 0.U
+      GenEventModule.io.parent := 0.U
     }
-    GenEventDPI.io.cycle := id_ctr
-    GenEventDPI.io.data := data
-    GenEventDPI.io.valid := valid
+    GenEventModule.io.cycle := cycleCounter
+    GenEventModule.io.data := data
+    GenEventModule.io.valid := valid
 
-    // if (parent.isDefined) {
-    //   if (id.isDefined) {
-    //     printf(cf"{\"id\": \"0x${id.get}%x\", \"parents\": \"0x${parent.get.id}%x\", \"cycle\": \"$id_ctr\", \"event_name\": \"$eventName\", \"data\": \"0x$data%x\"}\n")
-    //   } else {
-    //     printf(cf"{\"id\": \"0x$new_id%x\", \"parents\": \"0x${parent.get.id}%x\", \"cycle\": \"$id_ctr\", \"event_name\": \"$eventName\", \"data\": \"0x$data%x\"}\n")
-    //   }
-    // } else {
-    //   if (id.isDefined) {
-    //     printf(cf"{\"id\": \"0x${id.get}%x\", \"parents\": \"None\", \"cycle\": \"$id_ctr\", \"event_name\": \"$eventName\", \"data\": \"0x$data%x\"}\n")
-    //   } else {
-    //     printf(cf"{\"id\": \"0x$new_id%x\", \"parents\": \"None\", \"cycle\": \"$id_ctr\", \"event_name\": \"$eventName\", \"data\": \"0x$data%x\"}\n")
-    //   }
-    // }
-    
     instance_ctr += 1
-    return EventTag(new_id)
+    return EventTag(newID)
   }
 }
 class EventTag extends Bundle {
