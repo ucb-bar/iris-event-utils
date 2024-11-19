@@ -6,26 +6,25 @@
 #include <zlib.h>
 
 class EventLog {
-public:   
+public:
+    //Stores event_entry in event_vector
     void add_event(std::string event_name,
                     long long int id,
                     long long int parent,
                     long long int cycle,
                     long long int data) {
         event_entry new_event{event_name, id, parent, cycle, data};
-        // std::cout << event_name << "\n";
-        // std::cout << "hi there!" << "\n";
         event_vector.push_back(new_event);
     }
     EventLog() { 
         std::cout << "EventLog constructor called\n";
     }
+    //EventLog destructor writes events from event_vector to file at end of simulation
     ~EventLog() {
         std::cout << "EventLog destructor called\n";
         std::ofstream file("GenEventLog.txt");
         if (file.is_open()) {
             for (const event_entry& event : event_vector) {
-                // event.writeToFile(file);
                 file
                 << event.event_name  << " "
                 << event.id << " "
@@ -48,6 +47,7 @@ private:
         int64_t cycle;
         int64_t data;
 
+        //Write data as bytes
         // void writeToFile(std::ofstream& file) const {
         //     // Write the string length followed by the string data
         //     size_t length = event_name.size();
@@ -55,7 +55,7 @@ private:
         //     file.write(event_name.data(), length);
         //     // Write the integer
         //     file.write(reinterpret_cast<const char*>(&id), sizeof(id));
-        //     file.write(reinterpret_cast<const char*>(&parent), sizeof(parent));
+        //    file.write(reinterpret_cast<const char*>(&parent), sizeof(parent));
         //     file.write(reinterpret_cast<const char*>(&cycle), sizeof(cycle));
         //     file.write(reinterpret_cast<const char*>(&data), sizeof(data));
         // }
