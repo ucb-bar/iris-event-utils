@@ -13,6 +13,7 @@ class GenEventModule(val eventName: String) extends Module {
     val data = Input(UInt(64.W))
     val valid = Input(UInt(64.W))
   })
+  //Instatiate Verilog BlackBox and connect IOs
   val GenEventDPI = Module(new GenEventBlackBox(eventName))
   GenEventDPI.io.clock := clock.asBool
   GenEventDPI.io.reset := reset.asBool
@@ -25,14 +26,15 @@ class GenEventModule(val eventName: String) extends Module {
 //GenEvent apply instantiates a GenEventModule which instantiates GenEventBlackBox
 object GenEvent {
   var instance_ctr: Int = 1
-  def apply(eventName: String, data: UInt, parent: Option[EventTag], id: Option[UInt] = None, valid: Bool = true.B): EventTag = {
+  def apply(eventName: String, data: UInt, valid: Bool, parent: Option[EventTag], id: Option[UInt] = None): EventTag = {
     var newID = Wire(UInt(64.W))
+    var IDreg = Reg(UInt(64.W))
     val cycleCounter = RegInit(0.U(64.W))
     cycleCounter := cycleCounter + 1.U
     newID := Cat(instance_ctr.asUInt(16.W), cycleCounter(47, 0)) //Maximum of 2^16 GenEvent instances. Consider generating ID entirely in DPI function
 
+    //Instantiate GenEventModule 
     val GenEventModule = Module(new GenEventModule(eventName))
-
     if (id.isDefined) {
       GenEventModule.io.id := id.get.pad(64)
     } else {
@@ -47,8 +49,13 @@ object GenEvent {
     GenEventModule.io.data := data
     GenEventModule.io.valid := valid
 
+    //Increment global instance_ctr
     instance_ctr += 1
-    return EventTag(newID)
+
+    when (valid) {
+      IDreg := newID
+    }
+    return EventTag(IDreg)
   }
 }
 class EventTag extends Bundle {

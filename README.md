@@ -24,30 +24,40 @@ lazy val sodor = (project in file("generators/riscv-sodor"))
 Each GenEvent instance has a
 - Event Name string `eventName`
 - 64 bit Data input `data`
-- Optional Valid input `valid`
+- Valid input `valid`
 - Optional 64 bit Parent Tag ID input `parent`
-- Optional 64 bit Instance Tag ID input `id`
-- Tag ID output
+- Optional 64 bit Instance Tag ID input `id`, defaults to `None`
+- 64 bit Tag ID output
 
-A GenEvent instance records the `eventName`, a unique tag, cycle, `parent` tag, and `data` for an event every cycle when `valid` is high (`valid` is always high if no `valid` input is specified). 
+A GenEvent instance records the `eventName`, a unique tag, cycle, `parent` tag, and `data` for an event every cycle when `valid` is high. 
 
 #### EventTag and Event Graph
 EventTag's are 64 bit values that uniquely identify an event in the log. Each GenEvent instance generates a unique tag output signal every cycle that is logged and can also be passed to the `parent` input of other GenEvent instances through RTL to form a parent-child relationship. Multiple GenEvent instances can be chained to form a graph of dependent events. 
 
 Optionally, a tag can be passed to the `id` input. This will replace the uniquely generated tag in the log and can be useful if there is already a unique identifier in the RTL such as a transaction ID. The same ID can be passed to multiple GenEvent instances to chain the events chronologically.
 
-An example of a GenEvent declaration:
+Examples of a GenEvent declaration:
 ```scala
-val tag_reg = Reg(new EventTag)
-tag_reg := GenEvent("event_name", event_data, Some(parent_reg), None, event_valid)
+val tag = Wire(new EventTag)
+tag := GenEvent("event_name", event_data, event_valid, Some(parent_reg))
+
+//If no parent:
+tag := GenEvent("event_name", event_data, event_valid, None)
+
+//If no valid, replace with true.B to log every cycle:
+tag := GenEvent("event_name", event_data, true.B, None)
+
+//If unique ID already exists in design, it can be input as last argument:
+tag := GenEvent("event_name", event_data, event_valid, Some(parent_reg), Some(id_reg))
 ```
 Here, `tag_reg` registers the output of the `GenEvent`. A susbsequent `GenEvent` can use `tag_reg` in place of `parent_reg` as shown above to connect the two events. `id` is `None` in this event.
 
 #### Output Log Format
-GenEvent outputs a plain text log with 
+GenEvent outputs a plain text log with entries 
 ```
 event_name <id> <parent> <cycle> <data>
 ```
+
 ### Examples
 Currently, Sodor, Rocket, and Gemmini have GenEvent annotations. More designs are on the way!
 
