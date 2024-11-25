@@ -57,7 +57,7 @@ GenEvent outputs a plain text log with entries
 ```
 event_name <id> <parent> <cycle> <data>
 ```
-
+See GenEventLog.txt for a full 5-stage Sodor event log.
 ### Examples
 Currently, Sodor, Rocket, and Gemmini have GenEvent annotations. More designs are on the way!
 
@@ -73,6 +73,7 @@ Arguments:
 Usage:
 
 ```
+cd scripts/uarchdb
 python3 iris.py --log_file GenEventLog.txt --schema sodor5.json
 ```
 
