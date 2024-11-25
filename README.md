@@ -4,6 +4,7 @@ Iris (uArchDB) provides a set of tools for extracting microarchitecture events a
 
 ## GenEvent Module
 ![GenEvent Diagram](./img/geneventdiagram.svg)
+
 The GenEvent module written in CHISEL HDL and allows users to annotate their own modules to log timing and signal data at an event level. GenEvent implements a DPI interface for efficient logging.
 ### Importing GenEvent
 The GenEvent module can be imported by adding
@@ -76,8 +77,8 @@ Usage:
 cd scripts/uarchdb
 python3 iris.py --log_file GenEventLog.txt --schema sodor5.json
 ```
-### Konata Waveform Viewer
-![GenEvent Diagram](./img/RocketKonata.png)
+### Konata Waterfall Viewer
+![Rocket waterfall example](./img/RocketKonata.png)
 
 
 
