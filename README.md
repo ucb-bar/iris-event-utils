@@ -39,7 +39,7 @@ Optionally, a tag can be passed to the `id` input. This will replace the uniquel
 Examples of a GenEvent declaration:
 ```scala
 val tag = Wire(new EventTag)
-tag := GenEvent("event_name", event_data, event_valid, Some(parent_reg))
+tag := GenEvent("event_name", event_data, event_valid, Some(parent))
 
 //If no parent:
 tag := GenEvent("event_name", event_data, event_valid, None)
@@ -48,9 +48,9 @@ tag := GenEvent("event_name", event_data, event_valid, None)
 tag := GenEvent("event_name", event_data, true.B, None)
 
 //If unique ID already exists in design, it can be input as last argument:
-tag := GenEvent("event_name", event_data, event_valid, Some(parent_reg), Some(id_reg))
+tag := GenEvent("event_name", event_data, event_valid, Some(parent), Some(id_reg))
 ```
-Here, `tag_reg` registers the output of the `GenEvent`. A susbsequent `GenEvent` can use `tag_reg` in place of `parent_reg` as shown above to connect the two events. `id` is `None` in this event.
+Here, `tag` is the output of the `GenEvent`. A susbsequent `GenEvent` can use `tag` in place of `parent` in above to connect the two events. If not specified, `id` input is `None`.
 
 #### Output Log Format
 GenEvent outputs a plain text log with entries 
@@ -62,16 +62,12 @@ event_name <id> <parent> <cycle> <data>
 Currently, Sodor, Rocket, and Gemmini have GenEvent annotations. More designs are on the way!
 
 ## Iris Script
-[iris.py](https://github.com/ucb-bar/iris-event-utils/blob/main/scripts/uarchdb/iris.py) is a post-processing script for GenEvent logs. iris.py constructs the event graph using NetworkX and outputs a log which can be input into [Konata](https://github.com/shioyadan/Konata), an open-source Javascript waterfall viewer GUI. 
+[iris.py](https://github.com/ucb-bar/iris-event-utils/blob/main/scripts/uarchdb/iris.py) is a post-processing script for GenEvent logs to generate waterfall visualizations. iris.py parses the GenEvent log and constructs the event graph using NetworkX and outputs a log which can be input into [Konata](https://github.com/shioyadan/Konata), an open-source Javascript waterfall viewer GUI. 
 
 Arguments:
-
 `--log_file`: GenEvent log filename
-
 `--output_file`: Optional output file name. Defaults to `konata_output.log`
-
 `--schema`: json input file specifying pipeline stages and associated data types. Needed for RISCV instruction decoding. See [sodor config schema](https://github.com/ucb-bar/iris-event-utils/blob/main/scripts/uarchdb/sodor5.json). Schema contains event names, event data types, and start, split, and end stages of event graphs.
-
 `--gemmini`: optional flag for turning on Gemmini instruction decoding
 
 Usage:
