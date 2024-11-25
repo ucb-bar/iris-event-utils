@@ -3,6 +3,7 @@ Iris Event Annotation Tools
 Iris (uArchDB) provides a set of tools for extracting microarchitecture events and data in RTL for debugging and analysis. 
 
 ## GenEvent Module
+![GenEvent Diagram](./img/GenEvent.svg)
 The GenEvent module written in CHISEL HDL and allows users to annotate their own modules to log timing and signal data at an event level. GenEvent implements a DPI interface for efficient logging.
 ### Importing GenEvent
 The GenEvent module can be imported by adding
@@ -57,17 +58,17 @@ GenEvent outputs a plain text log with entries
 ```
 event_name <id> <parent> <cycle> <data>
 ```
-See GenEventLog.txt for a full 5-stage Sodor event log.
+See [GenEventLog.txt](./scripts/uarchdb/GenEventLog.txt) for a full 5-stage Sodor event log.
 ### Examples
 Currently, Sodor, Rocket, and Gemmini have GenEvent annotations. More designs are on the way!
 
 ## Iris Script
-[iris.py](https://github.com/ucb-bar/iris-event-utils/blob/main/scripts/uarchdb/iris.py) is a post-processing script for GenEvent logs to generate waterfall visualizations. iris.py parses the GenEvent log and constructs the event graph using NetworkX and outputs a log which can be input into [Konata](https://github.com/shioyadan/Konata), an open-source Javascript waterfall viewer GUI. 
+[iris.py](./scripts/uarchdb/iris.py) is a post-processing script for GenEvent logs to generate waterfall visualizations. iris.py parses the GenEvent log and constructs the event graph using NetworkX and outputs a log which can be input into [Konata](https://github.com/shioyadan/Konata), an open-source Javascript waterfall viewer GUI. 
 
 Arguments:
 `--log_file`: GenEvent log filename
 `--output_file`: Optional output file name. Defaults to `konata_output.log`
-`--schema`: json input file specifying pipeline stages and associated data types. Needed for RISCV instruction decoding. See [sodor config schema](https://github.com/ucb-bar/iris-event-utils/blob/main/scripts/uarchdb/sodor5.json). Schema contains event names, event data types, and start, split, and end stages of event graphs.
+`--schema`: json input file specifying pipeline stages and associated data types. Needed for RISCV instruction decoding. See [sodor config schema](./scripts/uarchdb/sodor5.json). Schema contains event names, event data types, and start, split, and end stages of event graphs.
 `--gemmini`: optional flag for turning on Gemmini instruction decoding
 
 Usage:
