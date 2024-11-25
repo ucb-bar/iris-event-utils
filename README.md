@@ -51,9 +51,19 @@ event_name <id> <parent> <cycle> <data>
 ### Examples
 Currently, Sodor, Rocket, and Gemmini have GenEvent annotations. More designs are on the way!
 
-## iris.py Script
+## Iris Script
+[iris.py](https://github.com/ucb-bar/iris-event-utils/blob/main/scripts/uarchdb/iris.py) is a post-processing script for GenEvent logs. iris.py constructs the event graph using NetworkX and outputs a log which can be input into [Konata](https://github.com/shioyadan/Konata), an open-source Javascript waterfall viewer GUI. 
 
-## Konata
+Arguments:
+`--log_file`: GenEvent log filename
+`--output_file`: Optional output file name. Defaults to `konata_output.log`
+`--schema`: json input file specifying pipeline stages and associated data types. Needed for RISCV instruction decoding. See [sodor config schema](https://github.com/ucb-bar/iris-event-utils/blob/main/scripts/uarchdb/sodor5.json). Schema contains event names, event data types, and start, split, and end stages of event graphs.
+`--gemmini`: optional flag for turning on Gemmini instruction decoding
 
-## 
+Usage:
+
+```
+python3 iris.py --log_file GenEventLog.txt --schema sodor5.json
+```
+
 
