@@ -37,7 +37,7 @@ EventTag's are 64 bit values that uniquely identify an event in the log. Each Ge
 
 Optionally, a tag can be passed to the `id` input. This will replace the uniquely generated tag in the log and can be useful if there is already a unique identifier in the RTL such as a transaction ID. The same ID can be passed to multiple GenEvent instances to chain the events chronologically.
 
-Examples of a GenEvent declaration:
+### Examples
 ```scala
 val tag = Wire(new EventTag)
 tag := GenEvent("event_name", event_data, event_valid, Some(parent))
@@ -53,13 +53,13 @@ tag := GenEvent("event_name", event_data, event_valid, Some(parent), Some(id_reg
 ```
 Here, `tag` is the output of the `GenEvent`. A susbsequent `GenEvent` can use `tag` in place of `parent` in above to connect the two events. If not specified, `id` input is `None`.
 
-#### Output Log Format
+### Output Log Format
 GenEvent outputs a plain text log with entries 
 ```
 event_name <id> <parent> <cycle> <data>
 ```
 See [GenEventLog.txt](./scripts/uarchdb/GenEventLog.txt) for a full 5-stage Sodor event log.
-### Examples
+### Implementations
 Currently, Sodor, Rocket, and Gemmini have GenEvent annotations. More designs are on the way!
 
 ## Iris Script
@@ -72,10 +72,12 @@ Arguments:
 `--gemmini`: optional flag for turning on Gemmini instruction decoding
 
 Usage:
-
 ```
 cd scripts/uarchdb
 python3 iris.py --log_file GenEventLog.txt --schema sodor5.json
 ```
+### Konata Waveform Viewer
+![GenEvent Diagram](./img/RocketKonata.png)
+
 
 
